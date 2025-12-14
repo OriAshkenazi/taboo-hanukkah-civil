@@ -51,13 +51,26 @@
 <body class="min-h-[100dvh]">
   <div id="root" class="min-h-[100dvh]"></div>
 
-  <script type="module">
-    import React, { useEffect, useMemo, useState } from 'https://esm.sh/react@18.2.0';
-    import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
-    import htm from 'https://esm.sh/htm@3.1.1';
-    import { Play, Check, X, Clock, Trophy, Users, HelpCircle, AlertCircle } from 'https://esm.sh/lucide-react@0.396.0?bundle&target=es2019&deps=react@18.2.0&exports=Play,Check,X,Clock,Trophy,Users,HelpCircle,AlertCircle';
-
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+  <script>
+    const { useEffect, useState } = React;
     const html = htm.bind(React.createElement);
+
+    const IconBase = ({ className = 'w-5 h-5', children }) => html`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className=${className}>
+        ${children}
+      </svg>
+    `;
+    const Play = ({ className = 'w-5 h-5' } = {}) => html`<${IconBase} className=${className}><polygon points="5 3 19 12 5 21 5 3" /></${IconBase}>`;
+    const Check = ({ className = 'w-5 h-5' } = {}) => html`<${IconBase} className=${className}><path d="M20 6 9 17l-5-5" /></${IconBase}>`;
+    const X = ({ className = 'w-5 h-5' } = {}) => html`<${IconBase} className=${className}><path d="M18 6 6 18" /><path d="M6 6l12 12" /></${IconBase}>`;
+    const Clock = ({ className = 'w-5 h-5' } = {}) => html`<${IconBase} className=${className}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></${IconBase}>`;
+    const Trophy = ({ className = 'w-5 h-5' } = {}) => html`<${IconBase} className=${className}><path d="M8 21h8" /><path d="M12 17v4" /><path d="M7 4h10" /><path d="M17 4v4a5 5 0 0 1-5 5 5 5 0 0 1-5-5V4" /><path d="M7 9H5a2 2 0 0 1-2-2V5h4" /><path d="M17 9h2a2 2 0 0 0 2-2V5h-4" /></${IconBase}>`;
+    const Users = ({ className = 'w-5 h-5' } = {}) => html`<${IconBase} className=${className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></${IconBase}>`;
+    const HelpCircle = ({ className = 'w-5 h-5' } = {}) => html`<${IconBase} className=${className}><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></${IconBase}>`;
+    const AlertCircle = ({ className = 'w-5 h-5' } = {}) => html`<${IconBase} className=${className}><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></${IconBase}>`;
 
     const WORDS = [
       { term: 'עגורן (מנוף)', forbidden: ['הרמה', 'גובה', 'בנייה', 'מגדל', 'סביבון'] },
@@ -448,8 +461,9 @@
       `;
     }
 
-    const root = createRoot(document.getElementById('root'));
+    const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(html`<${App} />`);
+  
   </script>
 </body>
 </html>
