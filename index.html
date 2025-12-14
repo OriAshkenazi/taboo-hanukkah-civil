@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>אליאס הנדסה וחנוכה</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23f97316'/%3E%3Cpath d='M32 16v20l10 6' stroke='%23fff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Secular+One&display=swap" rel="stylesheet">
@@ -212,7 +213,7 @@
             <div className="rounded-2xl border border-white/10 bg-white/5 p-3 shadow-glow">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className={`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${team.swatch}`}></div>
+                  <div className=${`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${team.swatch}`}></div>
                   <span className="text-sm font-semibold">${team.label}</span>
                 </div>
                 <${Users} className="w-4 h-4 opacity-70" />
@@ -240,7 +241,7 @@
               </div>
               <div className="mt-4 flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                  <div className={`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${currentTeam.swatch}`}></div>
+                  <div className=${`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${currentTeam.swatch}`}></div>
                   <div className="text-sm font-semibold opacity-80">תור: ${currentTeam.label}</div>
                 </div>
                 <Pill>סיבוב אל ${currentTeamIndex + 1}</Pill>
@@ -332,7 +333,7 @@
                 ${TEAMS.map((team) => html`
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className={`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${team.swatch}`}></div>
+                      <div className=${`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${team.swatch}`}></div>
                       <span className="text-sm font-semibold">${team.label}</span>
                     </div>
                     <span className="text-xl font-black">${(roundOutcome?.totals || scores)[team.id]}</span>
