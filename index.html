@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>אליאס הנדסה וחנוכה</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Secular+One&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Secular One"', '"Assistant"', 'system-ui', 'sans-serif'],
+            body: ['"Assistant"', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            glow: '0 20px 60px -20px rgba(0,0,0,0.35)',
+          },
+          keyframes: {
+            pop: { '0%': { transform: 'scale(0.94)' }, '60%': { transform: 'scale(1.04)' }, '100%': { transform: 'scale(1)' } },
+            shine: { '0%': { opacity: '0.6' }, '50%': { opacity: '1' }, '100%': { opacity: '0.6' } },
+            floaty: { '0%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-6px)' }, '100%': { transform: 'translateY(0)' } },
+          },
+          animation: {
+            pop: 'pop .65s ease',
+            shine: 'shine 2.4s ease-in-out infinite',
+            floaty: 'floaty 2.4s ease-in-out infinite',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    body {
+      margin: 0;
+      font-family: 'Assistant', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.08), transparent 25%),
+                  radial-gradient(circle at 80% 10%, rgba(251, 191, 36, 0.08), transparent 23%),
+                  #0b1220;
+      color: #e8ecf5;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="min-h-[100dvh]">
+  <div id="root" class="min-h-[100dvh]"></div>
+
+  <script type="module">
+    import React, { useEffect, useMemo, useState } from 'https://esm.sh/react@18.2.0';
+    import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
+    import htm from 'https://esm.sh/htm@3.1.1';
+    import { Play, Check, X, Clock, Trophy, Users, HelpCircle, AlertCircle } from 'https://esm.sh/lucide-react@0.396.0?dev&exports=Play,Check,X,Clock,Trophy,Users,HelpCircle,AlertCircle';
+
+    const html = htm.bind(React.createElement);
+
+    const WORDS = [
+      { term: 'עגורן (מנוף)', forbidden: ['הרמה', 'גובה', 'בנייה', 'מגדל', 'סביבון'] },
+      { term: 'נר ראשון', forbidden: ['חנוכיה', 'אש', 'הדלקה', 'ברכה', 'יסודות'] },
+      { term: 'Revit', forbidden: ['תוכנה', 'BIM', 'מידול', 'Autodesk', 'תלת מימד'] },
+      { term: 'סופגניה', forbidden: ['ריבה', 'שמן', 'משמין', 'בצק', 'עגול'] },
+      { term: 'יציקת בטון', forbidden: ['משאית', 'מערבל', 'התקשות', 'טפסנות', 'שמן'] },
+      { term: 'נס פך השמן', forbidden: ['כד', 'שמונה ימים', 'בית המקדש', 'סיכה', 'מכונות'] },
+      { term: 'גשר', forbidden: ['מפתח', 'עמודים', 'מעבר', 'צר מאוד', 'תלוי'] },
+      { term: 'דמי חנוכה', forbidden: ['כסף', 'מטבעות', 'סבא', 'תקציב', 'כתב כמויות'] },
+      { term: 'VDC', forbidden: ['ניהול', 'תכנון', 'וירטואלי', 'בנייה', 'תיאום'] },
+      { term: 'סביבון', forbidden: ['מסתובב', "נ' ג' ה' פ'", 'צעצוע', 'ילדים', 'מקדח'] },
+      { term: 'כלונס', forbidden: ['קידוח', 'קרקע', 'ביסוס', 'עמוד', 'בור'] },
+      { term: 'לביבה', forbidden: ['תפוח אדמה', 'טיגון', 'לטקס', 'מתוק', 'ארוחה'] },
+      { term: 'קסדה', forbidden: ['בטיחות', 'ראש', 'מגן', 'אתר', 'חובה'] },
+      { term: 'חשמונאים', forbidden: ['יוונים', 'מרד', 'מתתיהו', 'מכבים', 'קבלנים'] },
+      { term: 'פיגום', forbidden: ['גובה', 'טיח', 'חיפוי', 'סולם', 'מתכת'] },
+      { term: 'שמש', forbidden: ['נר', 'עוזר', 'גבוה', 'מרכז', 'אור'] },
+      { term: 'Navisworks', forbidden: ['התנגשויות', 'Clash', 'בדיקה', 'מודל', 'תיאום'] },
+      { term: 'כד קטן', forbidden: ['שמן', 'טהור', 'בית המקדש', 'נשבר', 'חרס'] },
+      { term: 'גרמושקה', forbidden: ['היתר', 'תוכנית', 'עירייה', 'חתימות', 'נייר'] },
+      { term: 'Python', forbidden: ['קוד', 'תכנות', 'נחש', 'אוטומציה', 'סקריפט'] },
+      { term: 'מעוז צור', forbidden: ['שיר', 'ישועתי', 'הדלקה', 'פיוט', 'מזבח'] },
+      { term: 'קיר תמך', forbidden: ['אדמה', 'לחץ', 'בטון', 'שיפוע', 'ייצוב'] },
+      { term: 'חנוכיה', forbidden: ['קנים', 'תשעה', 'הדלקה', 'חלון', 'פרסום הנס'] },
+      { term: 'פרוייקטור', forbidden: ['מנהל', 'אתר', 'אחראי', 'לוח זמנים', 'ביצוע'] },
+    ];
+
+    const TEAMS = [
+      { id: 'engineering', name: 'Engineering Team', label: 'קבוצת ההנדסה', swatch: 'from-blue-500 via-sky-400 to-cyan-300', text: 'text-blue-200', pill: 'bg-blue-500/20 border-blue-400/50' },
+      { id: 'hanukkah', name: 'Hanukkah Team', label: 'קבוצת החנוכה', swatch: 'from-orange-400 via-amber-300 to-yellow-200', text: 'text-orange-100', pill: 'bg-amber-500/20 border-amber-400/50' },
+    ];
+
+    const initialScores = { engineering: 0, hanukkah: 0 };
+
+    const Badge = ({ label, icon: Icon, color = 'bg-white/10', text = 'text-white' }) => html`
+      <div className="flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 ${color} ${text} shadow-glow">
+        ${Icon ? html`<${Icon} className="w-4 h-4" />` : null}
+        <span className="text-sm font-semibold">${label}</span>
+      </div>
+    `;
+
+    const Pill = ({ children }) => html`<span className="px-2 py-1 rounded-full bg-white/10 border border-white/10 text-xs">${children}</span>`;
+
+    function App() {
+      const [phase, setPhase] = useState('welcome');
+      const [scores, setScores] = useState(initialScores);
+      const [currentTeamIndex, setCurrentTeamIndex] = useState(0);
+      const [timer, setTimer] = useState(60);
+      const [roundScore, setRoundScore] = useState(0);
+      const [currentWord, setCurrentWord] = useState(() => WORDS[Math.floor(Math.random() * WORDS.length)]);
+      const [roundOutcome, setRoundOutcome] = useState(null);
+      const [winner, setWinner] = useState(null);
+      const [showHowTo, setShowHowTo] = useState(false);
+
+      const currentTeam = TEAMS[currentTeamIndex];
+
+      const drawWord = () => WORDS[Math.floor(Math.random() * WORDS.length)];
+
+      useEffect(() => {
+        if (phase !== 'playing') return;
+        if (timer <= 0) {
+          finalizeRound();
+          return;
+        }
+        const id = setInterval(() => {
+          setTimer((t) => (t > 0 ? t - 1 : 0));
+        }, 1000);
+        return () => clearInterval(id);
+      }, [phase, timer]);
+
+      const startGame = () => {
+        setScores(initialScores);
+        setWinner(null);
+        setRoundOutcome(null);
+        setCurrentTeamIndex(0);
+        setTimer(60);
+        setRoundScore(0);
+        setCurrentWord(drawWord());
+        setPhase('roundStart');
+      };
+
+      const beginRound = () => {
+        setTimer(60);
+        setRoundScore(0);
+        setCurrentWord(drawWord());
+        setPhase('playing');
+      };
+
+      const handleSuccess = () => {
+        if (phase !== 'playing') return;
+        setRoundScore((s) => s + 1);
+        setCurrentWord(drawWord());
+      };
+
+      const handleFail = () => {
+        if (phase !== 'playing') return;
+        setRoundScore((s) => s - 1);
+        setCurrentWord(drawWord());
+      };
+
+      const finalizeRound = () => {
+        const team = currentTeam;
+        setScores((prev) => {
+          const updated = { ...prev, [team.id]: prev[team.id] + roundScore };
+          setRoundOutcome({ team, delta: roundScore, totals: updated });
+          if (updated[team.id] >= 30) {
+            setWinner(team);
+            setPhase('winner');
+          } else {
+            setPhase('summary');
+          }
+          return updated;
+        });
+      };
+
+      const nextRound = () => {
+        setRoundScore(0);
+        setTimer(60);
+        setCurrentWord(drawWord());
+        setCurrentTeamIndex((i) => (i === 0 ? 1 : 0));
+        setPhase('roundStart');
+      };
+
+      const resetGame = () => {
+        setScores(initialScores);
+        setRoundScore(0);
+        setTimer(60);
+        setCurrentTeamIndex(0);
+        setCurrentWord(drawWord());
+        setRoundOutcome(null);
+        setWinner(null);
+        setPhase('welcome');
+      };
+
+      const renderScoreboard = () => html`
+        <div className="px-4 mt-4 grid grid-cols-2 gap-3">
+          ${TEAMS.map((team) => html`
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-3 shadow-glow">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${team.swatch}`}></div>
+                  <span className="text-sm font-semibold">${team.label}</span>
+                </div>
+                <${Users} className="w-4 h-4 opacity-70" />
+              </div>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="text-3xl font-black tracking-tight">${scores[team.id]}</span>
+                <span className="text-xs uppercase opacity-70">נקודות</span>
+              </div>
+            </div>
+          `)}
+        </div>
+      `;
+
+      const renderCard = () => html`
+        <div className="mt-6 flex-1 flex items-center justify-center">
+          <div className="w-full max-w-xl">
+            <div className="relative rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/30 backdrop-blur-md">
+              <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-blue-400/60 via-white/60 to-orange-300/60"></div>
+              <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-white/60 font-semibold">
+                <span>אליאס הנדסה וחנוכה</span>
+                <div className="flex items-center gap-1">
+                  <${Clock} className="w-4 h-4" />
+                  <span>${timer < 10 ? `0${timer}` : timer} שניות</span>
+                </div>
+              </div>
+              <div className="mt-4 flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${currentTeam.swatch}`}></div>
+                  <div className="text-sm font-semibold opacity-80">תור: ${currentTeam.label}</div>
+                </div>
+                <Pill>סיבוב אל ${currentTeamIndex + 1}</Pill>
+              </div>
+              <div className="mt-8 text-center space-y-4">
+                <div className="text-sm uppercase tracking-[0.3em] text-white/60 font-semibold">המילה</div>
+                <div className="text-4xl font-black text-white drop-shadow-lg animate-pop">${currentWord.term}</div>
+                <div className="h-px bg-white/5 w-1/2 mx-auto"></div>
+                <div className="text-sm uppercase tracking-[0.3em] text-white/50 font-semibold">מילים אסורות</div>
+                <div className="flex flex-wrap justify-center gap-2 mt-2">
+                  ${currentWord.forbidden.map((item) => html`<Pill key=${item}>${item}</Pill>`)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const renderWelcome = () => html`
+        <div className="flex flex-col items-center text-center px-6">
+          <div className="h-3 w-full bg-gradient-to-r from-blue-500 via-amber-300 to-orange-500 rounded-full shadow-glow"></div>
+          <div className="mt-10 flex flex-col gap-4">
+            <Badge label="משחק קופה מהיר" icon=${Play} />
+            <h1 className="text-4xl font-black font-display leading-tight">אליאס הנדסה וחנוכה</h1>
+            <p className="text-white/70 leading-relaxed max-w-xl">
+              חמשה שחקנים, שתי קבוצות: כחול (הנדסה) מול כתום (חנוכה). תיאור בלי להגיד את המילים האסורות, 60 שניות לכל תור. ראשונים להגיע ל-30 נקודות מנצחים!
+            </p>
+          </div>
+          ${renderScoreboard()}
+          <div className="mt-8 flex flex-col gap-3 w-full max-w-md">
+            <button onClick=${startGame} className="flex items-center justify-center gap-2 w-full rounded-2xl bg-gradient-to-r from-blue-500 via-amber-400 to-orange-500 py-4 text-lg font-black shadow-glow hover:scale-[1.01] active:scale-[0.99] transition">
+              <${Play} className="w-5 h-5" />
+              <span>התחילו משחק</span>
+            </button>
+            <button onClick=${() => setShowHowTo(true)} className="flex items-center justify-center gap-2 w-full rounded-2xl border border-white/15 bg-white/5 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 transition">
+              <${HelpCircle} className="w-5 h-5" />
+              <span>איך משחקים?</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      const renderRoundStart = () => html`
+        <div className="flex flex-col items-center text-center px-6">
+          <div className="h-3 w-32 bg-gradient-to-r from-blue-500 via-amber-300 to-orange-500 rounded-full shadow-glow animate-shine"></div>
+          <div className="mt-8 space-y-4 max-w-xl">
+            <div className="flex justify-center">
+              <Badge label="סבב חדש" icon=${Clock} color="bg-white/10" />
+            </div>
+            <h2 className="text-3xl font-black font-display">תור של ${currentTeam.label}</h2>
+            <p className="text-white/70 leading-relaxed">
+              60 שניות. הצלחה = +1, דילוג/איסור = -1. הגיעו ראשונים ל-30 נקודות.
+            </p>
+            <div className="rounded-2xl border border-amber-300/40 bg-amber-500/10 px-4 py-3 text-amber-100 flex items-center gap-3 shadow-glow">
+              <${AlertCircle} className="w-5 h-5 text-amber-200" />
+              <div className="text-sm font-semibold">שימו לב: נציג מהקבוצה השנייה יושב לידו ומשגיח!</div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Pill>מותר: סיטואציות</Pill>
+              <Pill>הפכים ואסוציאציות</Pill>
+              <Pill>פנטומימה</Pill>
+              <Pill>חרוזים</Pill>
+            </div>
+          </div>
+          <div className="mt-8 w-full max-w-md">
+            <button onClick=${beginRound} className="flex items-center justify-center gap-2 w-full rounded-2xl bg-gradient-to-r from-blue-500 via-amber-400 to-orange-500 py-4 text-lg font-black shadow-glow hover:scale-[1.01] active:scale-[0.99] transition">
+              <${Play} className="w-5 h-5" />
+              <span>התחילו סיבוב</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      const renderSummary = () => html`
+        <div className="flex flex-col items-center text-center px-6">
+          <div className="h-3 w-24 bg-gradient-to-r from-blue-500 via-amber-300 to-orange-500 rounded-full shadow-glow animate-shine"></div>
+          <div className="mt-8 space-y-4 max-w-xl">
+            <h2 className="text-3xl font-black font-display">סיכום סיבוב</h2>
+            <p className="text-white/70 leading-relaxed">תור של ${roundOutcome?.team?.label || currentTeam.label} הסתיים.</p>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-glow space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="opacity-70">תוצאה בסיבוב</span>
+                <span className="${(roundOutcome?.delta || 0) >= 0 ? 'text-emerald-300' : 'text-red-300'} font-black text-xl">
+                  ${(roundOutcome?.delta || 0) >= 0 ? '+' : ''}${roundOutcome?.delta || 0}
+                </span>
+              </div>
+              <div className="h-px bg-white/5"></div>
+              <div className="grid grid-cols-2 gap-3">
+                ${TEAMS.map((team) => html`
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`h-2.5 w-2.5 rounded-full bg-gradient-to-r ${team.swatch}`}></div>
+                      <span className="text-sm font-semibold">${team.label}</span>
+                    </div>
+                    <span className="text-xl font-black">${(roundOutcome?.totals || scores)[team.id]}</span>
+                  </div>
+                `)}
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 flex flex-col gap-3 w-full max-w-md">
+            <button onClick=${nextRound} className="flex items-center justify-center gap-2 w-full rounded-2xl bg-gradient-to-r from-blue-500 via-amber-400 to-orange-500 py-3 text-lg font-black shadow-glow hover:scale-[1.01] active:scale-[0.99] transition">
+              <${Play} className="w-5 h-5" />
+              <span>לסיבוב הבא</span>
+            </button>
+            <button onClick=${resetGame} className="flex items-center justify-center gap-2 w-full rounded-2xl border border-white/15 bg-white/5 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 transition">
+              <${HelpCircle} className="w-5 h-5" />
+              <span>אתחול משחק</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      const renderWinner = () => html`
+        <div className="flex flex-col items-center text-center px-6">
+          <div className="h-3 w-32 bg-gradient-to-r from-blue-500 via-amber-300 to-orange-500 rounded-full shadow-glow animate-shine"></div>
+          <div className="mt-10 space-y-5 max-w-xl">
+            <div className="flex justify-center">
+              <div className="relative">
+                <div className="absolute inset-0 blur-3xl bg-gradient-to-r from-blue-500/40 via-amber-300/40 to-orange-500/40 animate-pulse"></div>
+                <div className="relative rounded-full bg-white/10 border border-white/20 p-5 shadow-glow animate-floaty">
+                  <${Trophy} className="w-16 h-16 text-amber-300" />
+                </div>
+              </div>
+            </div>
+            <h2 className="text-4xl font-black font-display">מזל טוב!</h2>
+            <p className="text-white/70 text-lg">הקבוצה המנצחת: ${winner?.label}</p>
+            ${renderScoreboard()}
+          </div>
+          <div className="mt-8 w-full max-w-md">
+            <button onClick=${resetGame} className="flex items-center justify-center gap-2 w-full rounded-2xl bg-gradient-to-r from-blue-500 via-amber-400 to-orange-500 py-4 text-lg font-black shadow-glow hover:scale-[1.01] active:scale-[0.99] transition">
+              <${Play} className="w-5 h-5" />
+              <span>משחק חדש</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      const renderControls = () => html`
+        <div className="fixed bottom-0 left-0 right-0 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent backdrop-blur-md">
+          <div className="grid grid-cols-2 gap-3 max-w-xl mx-auto">
+            <button onClick=${handleFail} className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-rose-500 to-red-500 py-4 text-lg font-black shadow-lg shadow-red-900/40 active:translate-y-[1px] transition">
+              <${X} className="w-5 h-5" />
+              <span>דילוג / איסור -1</span>
+            </button>
+            <button onClick=${handleSuccess} className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-lime-500 py-4 text-lg font-black shadow-lg shadow-emerald-900/40 active:translate-y-[1px] transition">
+              <${Check} className="w-5 h-5" />
+              <span>הצלחה +1</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      const renderHowToModal = () => html`
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick=${() => setShowHowTo(false)}></div>
+          <div className="relative w-full max-w-lg rounded-3xl border border-white/15 bg-slate-900/95 p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <${HelpCircle} className="w-5 h-5 text-amber-300" />
+                <h3 className="text-xl font-black font-display">חוקים ומה מותר</h3>
+              </div>
+              <button onClick=${() => setShowHowTo(false)} className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition">
+                <${X} className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3 text-sm text-white/80">
+              <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-3">
+                <div className="flex items-center gap-2 text-emerald-200 font-semibold mb-2">מותר:</div>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li>סיטואציות ודוגמאות</li>
+                  <li>הפכים ואסוציאציות</li>
+                  <li>פנטומימה ורמזים</li>
+                  <li>חרוזים ומשחקי מילים</li>
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-rose-400/30 bg-rose-500/10 p-3">
+                <div className="flex items-center gap-2 text-rose-200 font-semibold mb-2">אסור:</div>
+                <ul className="space-y-1 list-disc list-inside">
+                  <li>המילה עצמה או מילים מאותו שורש</li>
+                  <li>המילים האסורות בכרטיס</li>
+                  <li>תרגום או איות של המילה</li>
+                  <li>שימוש באנגלית במקום המילה</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      return html`
+        <div className="min-h-[100dvh] bg-slate-950 text-white flex flex-col relative overflow-hidden pb-36">
+          <div className="absolute inset-x-0 top-0 h-3 bg-gradient-to-r from-blue-500 via-amber-300 to-orange-500 shadow-glow"></div>
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute -left-16 top-10 h-40 w-40 rounded-full bg-blue-500/10 blur-3xl"></div>
+            <div className="absolute right-0 top-32 h-36 w-36 rounded-full bg-amber-400/10 blur-3xl"></div>
+            <div className="absolute left-10 bottom-10 h-32 w-32 rounded-full bg-emerald-400/5 blur-3xl"></div>
+          </div>
+          <header className="flex items-center justify-between px-4 pt-5">
+            <Badge label="30 נקודות לניצחון" icon=${Trophy} color="bg-white/10" />
+            <button onClick=${() => setShowHowTo(true)} className="p-2 rounded-full bg-white/10 border border-white/10 hover:bg-white/20 transition">
+              <${HelpCircle} className="w-5 h-5" />
+            </button>
+          </header>
+
+          ${phase === 'welcome' ? renderWelcome() : null}
+          ${phase === 'roundStart' ? renderRoundStart() : null}
+          ${phase === 'playing' ? html`
+            ${renderScoreboard()}
+            ${renderCard()}
+          ` : null}
+          ${phase === 'summary' ? renderSummary() : null}
+          ${phase === 'winner' ? renderWinner() : null}
+
+          ${phase === 'playing' ? renderControls() : null}
+          ${showHowTo ? renderHowToModal() : null}
+        </div>
+      `;
+    }
+
+    const root = createRoot(document.getElementById('root'));
+    root.render(html`<${App} />`);
+  </script>
+</body>
+</html>
